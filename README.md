@@ -1,5 +1,6 @@
 # DynamicNextTest
 Scripts are Inside Assets/Scripts
+All the codes are commented as well
 
 ## EnemyScript: 
 The main script responsible for finding all the soldiers regardless of color, moving towards them, attacking them, taking damage, and death
