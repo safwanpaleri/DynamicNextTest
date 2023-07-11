@@ -2,6 +2,11 @@
 Scripts are Inside Assets/Scripts
 All the codes are commented as well
 
+## Task 2
+Canvas Script: Created a script and attached to Canvas for managing UI items. Contains a CreateUI function which helps to create UI elements into the Events Tab.
+EventUIItem script: attached to the UI elements which contains the references to title, description and time. It also updates time accordingly.
+Made changes other scripts to achieve the result.
+
 ## EnemyScript: 
 The main script responsible for finding all the soldiers regardless of color, moving towards them, attacking them, taking damage, and death
 
