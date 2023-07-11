@@ -12,11 +12,14 @@ public class SwordScript : MonoBehaviour
 
     //When the sword get collided with an enemy then it will damage the enemy according to the damage given in the script 
     //attached to this object
+    //Also send the attacking enemy game object for further purposes
     private void OnCollisionEnter(Collision collision)
     { 
         if (!enemyScript.isDead && enemyScript.isAttacking && collision.gameObject != this.gameObject && !enemyScript.isTakingDamage)
         {
-            collision.gameObject.GetComponent<EnemyScript>().TakeDamage(enemyScript.Damage);
+            var CollisionGameobjectEnemyScript = collision.gameObject.GetComponent<EnemyScript>();
+            CollisionGameobjectEnemyScript.TakeDamage(enemyScript.Damage,enemyScript.gameObject);
+
         }
     }
 

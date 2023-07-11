@@ -20,12 +20,15 @@ public class EnemyScript : MonoBehaviour
     [Header("UI")]
     [SerializeField] private Slider HealthSlider;
     [SerializeField] private TMP_Text HealthText;
+    [SerializeField] private CanvasManager canvasManager;
 
     //Other value references needed for codes
     private EnemyScript[] Enemies;
     [HideInInspector] public bool isDead = false;
     [HideInInspector] public bool isAttacking = false;
     [HideInInspector] public bool isTakingDamage = false;
+
+    public bool isBlue = false;
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +44,9 @@ public class EnemyScript : MonoBehaviour
         //Attack the first enemy to be spawned
         if (isDead)
             return;
+
+        if (canvasManager == null)
+            canvasManager = FindObjectOfType<CanvasManager>();
 
         Enemies = FindObjectsOfType<EnemyScript>();
         if(Enemies.Length > 1)
@@ -98,14 +104,14 @@ public class EnemyScript : MonoBehaviour
     }
 
     //Function responsible for taking damage by this gameobject.
-    public void TakeDamage(int Damage)
+    public void TakeDamage(int Damage, GameObject enemy)
     {
         
-        StartCoroutine(TakeDamageCoroutine(Damage));
+        StartCoroutine(TakeDamageCoroutine(Damage, enemy));
     }
 
     //Function which do things to do when damaged
-    private IEnumerator TakeDamageCoroutine(int Damage)
+    private IEnumerator TakeDamageCoroutine(int Damage, GameObject enemy)
     {
         //Firstly we call animation
         //Decrease the health and update the ui
@@ -119,18 +125,33 @@ public class EnemyScript : MonoBehaviour
         if(Health >= 0)
             HealthText.text = Health.ToString();
         if (Health <= 0)
-            StartCoroutine(Death());
+            StartCoroutine(Death(enemy));
         var rand = Random.Range(1.0f, 2.0f);
         yield return new WaitForSeconds(rand);
         isTakingDamage = false;
     }
 
     //Function called when enemy is dead.
-    private IEnumerator Death()
+    private IEnumerator Death(GameObject enemy)
     {
         //calls the animation and destroy gameobject after the animation
         isDead = true;
         animator.SetTrigger("Death");
+
+        //if the object blue update the UI and increase the score of the opposite team
+        if (!isBlue)
+        {
+            canvasManager.CreateUI(gameObject.name, gameObject.name + " killed by " +enemy.name, "Red");
+            canvasManager.CreateUI("Blue_Team", " Blue team score updated by 10 ", "Blue");
+            Debug.LogWarning(enemy.name);
+            Debug.LogWarning(enemy.gameObject.name);
+        }
+        else
+        {
+            canvasManager.CreateUI(gameObject.name, gameObject.name + " killed by " + enemy.name, "Blue");
+            canvasManager.CreateUI("Red_Team", " Red team score updated by 10 ", "Red");
+        }
+
         yield return new WaitForSeconds(1.5f);
         Destroy(gameObject);
     }
