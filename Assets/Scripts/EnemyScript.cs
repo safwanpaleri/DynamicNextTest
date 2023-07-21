@@ -23,17 +23,18 @@ public class EnemyScript : MonoBehaviour
     [SerializeField] private CanvasManager canvasManager;
 
     //Other value references needed for codes
-    private EnemyScript[] Enemies;
+    private List<EnemyScript> Enemies = new List<EnemyScript>();
     [HideInInspector] public bool isDead = false;
     [HideInInspector] public bool isAttacking = false;
     [HideInInspector] public bool isTakingDamage = false;
 
     public bool isBlue = false;
+    private EnemyScript[] currentEnemies;
+    public bool isActive = false;
 
     // Start is called before the first frame update
     void Start()
     {
-       
     }
 
     // Update is called once per frame
@@ -42,19 +43,44 @@ public class EnemyScript : MonoBehaviour
         //if not dead,
         //Find all the enemies, and everyone is an enemy
         //Attack the first enemy to be spawned
-        if (isDead)
+        if (isDead || !isActive)
             return;
 
         if (canvasManager == null)
             canvasManager = FindObjectOfType<CanvasManager>();
 
-        Enemies = FindObjectsOfType<EnemyScript>();
-        if(Enemies.Length > 1)
+        if (Enemies.Count > 0)
         {
-            if (Enemies[Enemies.Length - 1] == this)
-                LookAndMove(Enemies[Enemies.Length - 2]);
+            if (Enemies[0] != null && !Enemies[0].isDead)
+            {
+                LookAndMove(Enemies[0]);
+            }
             else
-                LookAndMove(Enemies[Enemies.Length - 1]);
+                RefreshEnemies();
+        }
+        else
+            RefreshEnemies();
+    }
+
+    public void RefreshEnemies()
+    {
+        Enemies.Clear();
+        currentEnemies = FindObjectsOfType<EnemyScript>();
+        if (isBlue)
+        {
+            foreach (EnemyScript enemy in currentEnemies)
+            {
+                if (!enemy.isBlue && enemy.isActive)
+                    Enemies.Add(enemy);
+            }
+        }
+        else
+        {
+            foreach (EnemyScript enemy in currentEnemies)
+            {
+                if (enemy.isBlue && enemy.isActive)
+                    Enemies.Add(enemy);
+            }
         }
     }
 
@@ -152,7 +178,23 @@ public class EnemyScript : MonoBehaviour
             canvasManager.CreateUI("Red_Team", " Red team score updated by 10 ", "Red");
         }
 
+        isActive = false;
         yield return new WaitForSeconds(1.5f);
-        Destroy(gameObject);
+        ResetGameObject();
+        //Destroy(gameObject);
+    }
+
+    public void ResetGameObject()
+    {
+        var enemyPool = FindObjectOfType<EnemyPool>();
+        if(enemyPool != null)
+        {
+            gameObject.transform.position = enemyPool.gameObject.transform.position;
+            gameObject.transform.rotation = Quaternion.identity;
+            isDead = false;
+            Health = 100;
+            HealthSlider.value = (Health / 100f);
+        }
+
     }
 }

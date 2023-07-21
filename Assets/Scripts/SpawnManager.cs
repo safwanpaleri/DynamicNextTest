@@ -5,9 +5,10 @@ using UnityEngine.EventSystems;
 
 public class SpawnManager : MonoBehaviour
 {
-    public GameObject BlueEnemy;
-    public GameObject RedEnemy;
+    [SerializeField] GameObject EnemyPrefab;
+    [SerializeField] Material RedMaterial;
     [SerializeField] private CanvasManager canvasManager;
+    [SerializeField] EnemyPool enemyPool;
 
     // Start is called before the first frame update
     void Start()
@@ -36,15 +37,34 @@ public class SpawnManager : MonoBehaviour
                 }
 
                 // Spawn the blue unit prefab at the hit position
-                var newBlueEnemy = Instantiate(BlueEnemy, hit.point, Quaternion.identity);
-                var newBlueEnemyScript = newBlueEnemy.GetComponent<EnemyScript>();
+                if(enemyPool != null)
+                {
+                    var NewBlueEnemy = enemyPool.GetEnemyFromPool();
+                    var NewBlueEnemyScript = NewBlueEnemy.GetComponent<EnemyScript>();
+                    NewBlueEnemyScript.isActive = true;
+                    NewBlueEnemy.transform.position = hit.point;
+                    NewBlueEnemy.transform.rotation = Quaternion.identity;
+                    NewBlueEnemyScript.isBlue = true;
+                    var RandInt = Random.Range(5000, 15000);
+                    NewBlueEnemy.name = "BlueEnemy_" + RandInt;
+                    if (canvasManager != null)
+                        canvasManager.CreateUI(NewBlueEnemy.name, NewBlueEnemy.name + " spawned in the field", "Blue");
+                }
+                else
+                {
+                    var newBlueEnemy = Instantiate(EnemyPrefab, hit.point, Quaternion.identity);
+                    var newBlueEnemyScript = newBlueEnemy.GetComponent<EnemyScript>();
 
-                if(newBlueEnemyScript != null)
-                    newBlueEnemyScript.isBlue = true;
+                    if (newBlueEnemyScript != null)
+                        newBlueEnemyScript.isBlue = true;
 
-                var RandInt = Random.Range(5000, 15000);
-                newBlueEnemy.name = "BlueEnemy_" + RandInt;
-                canvasManager.CreateUI(newBlueEnemy.name, newBlueEnemy.name + " spawned in the field", "Blue");
+                    var RandInt = Random.Range(5000, 15000);
+                    newBlueEnemy.name = "BlueEnemy_" + RandInt;
+
+                    if (canvasManager != null)
+                        canvasManager.CreateUI(newBlueEnemy.name, newBlueEnemy.name + " spawned in the field", "Blue");
+                }
+                
             }
         }
         else if (Input.GetMouseButtonDown(1))
@@ -56,13 +76,34 @@ public class SpawnManager : MonoBehaviour
             // Perform the raycast and check if it hits something
             if (Physics.Raycast(ray, out hit))
             {
-                // Spawn the red unit prefab at the hit position
-                var newRedEnemy = Instantiate(RedEnemy, hit.point, Quaternion.identity);
+                if (enemyPool != null)
+                {
+                    var NewRedEnemy = enemyPool.GetEnemyFromPool();
+                    NewRedEnemy.GetComponentInChildren<SkinnedMeshRenderer>().material = RedMaterial;
+                    var NewRedEnemyScript = NewRedEnemy.GetComponent<EnemyScript>();
+                    NewRedEnemyScript.isActive = true;
+                    NewRedEnemy.transform.position = hit.point;
+                    NewRedEnemy.transform.rotation = Quaternion.identity;
 
-                //writing UI into Events tab
-                var RandInt = Random.Range(5000, 15000);
-                newRedEnemy.name = "RedEnemy_" + RandInt;
-                canvasManager.CreateUI(newRedEnemy.name, newRedEnemy.name + " spawned in the field", "Red");
+                    var RandInt = Random.Range(5000, 15000);
+                    NewRedEnemy.name = "RedEnemy_" + RandInt;
+                    if (canvasManager != null)
+                        canvasManager.CreateUI(NewRedEnemy.name, NewRedEnemy.name + " spawned in the field", "Red");
+                }
+                else
+                {
+                    // Spawn the red unit prefab at the hit position
+                    var newRedEnemy = Instantiate(EnemyPrefab, hit.point, Quaternion.identity);
+                    newRedEnemy.GetComponentInChildren<SkinnedMeshRenderer>().material = RedMaterial;
+
+                    //writing UI into Events tab
+                    var RandInt = Random.Range(5000, 15000);
+                    newRedEnemy.name = "RedEnemy_" + RandInt;
+                    if (canvasManager != null)
+                        canvasManager.CreateUI(newRedEnemy.name, newRedEnemy.name + " spawned in the field", "Red");
+                }    
+                
+                
             }
         }
     }

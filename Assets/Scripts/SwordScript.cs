@@ -18,8 +18,13 @@ public class SwordScript : MonoBehaviour
         if (!enemyScript.isDead && enemyScript.isAttacking && collision.gameObject != this.gameObject && !enemyScript.isTakingDamage)
         {
             var CollisionGameobjectEnemyScript = collision.gameObject.GetComponent<EnemyScript>();
-            CollisionGameobjectEnemyScript.TakeDamage(enemyScript.Damage,enemyScript.gameObject);
-
+            if(CollisionGameobjectEnemyScript != null)
+            {
+                if(CollisionGameobjectEnemyScript.isBlue && !enemyScript.isBlue)
+                    CollisionGameobjectEnemyScript.TakeDamage(enemyScript.Damage, enemyScript.gameObject);
+                else if(!CollisionGameobjectEnemyScript.isBlue && enemyScript.isBlue)
+                    CollisionGameobjectEnemyScript.TakeDamage(enemyScript.Damage, enemyScript.gameObject);
+            }
         }
     }
 
